@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Nhân viên</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="m-4">
+        <h1 class="text-center mb-4">Quản lý Nhân viên</h1>
+
+        <!-- Thanh tìm kiếm và nút Thêm nhân viên -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <!-- Thanh tìm kiếm -->
+            <input type="text" id="searchInput" class="form-control w-50" placeholder="Tìm kiếm nhân viên..."
+                onkeyup="searchEmployee(this.value)">
+
+            <!-- Button thêm nhân viên -->
+            <div class="d-flex justify-content-end mb-3">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">Thêm nhân
+                    viên</button>
+            </div>
+        </div>
+
+        <!-- Bảng danh sách nhân viên -->
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>STT</th>
+                    <th>Mã nhân viên</th>
+                    <th>Họ và Tên</th>
+                    <th>Email</th>
+                    <th>Số điện thoại</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="employee-list">
+                <!-- Employee rows will be injected here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal xem thông tin chi tiết -->
+    <% employees.forEach((employee)=> { %>
+        <div class="modal fade" id="viewEmployeeModal<%= employee._id %>" tabindex="-1"
+            aria-labelledby="viewEmployeeModalLabel<%= employee._id %>" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content w-100">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="viewEmployeeModalLabel<%= employee._id %>">Thông tin chi tiết nhân
+                            viên</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <th scope="row">Họ và Tên</th>
+                                    <td>
+                                        <%= employee.name %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Email</th>
+                                    <td>
+                                        <%= employee.email %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Số điện thoại</th>
+                                    <td>
+                                        <%= employee.phone %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Ngày bắt đầu</th>
+                                    <td>
+                                        <%= new Date(employee.startDate).toLocaleDateString().split('T')[0] %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Địa chỉ</th>
+                                    <td>
+                                        <%= employee.address %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Lương cơ bản</th>
+                                    <td>
+                                        <%= employee.salary %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Quyền</th>
+                                    <td>
+                                        <% if(employee.role==='admin' ){ %>
+                                            Admin
+                                            <% }else{ %>
+                                                Nhân viên
+                                                <% } %>
+                                    </td>
+                                    <form action="employees/reset-password/<%= employee._id %>" method="POST"
+                                        onsubmit="return confirm('Bạn có muốn cài lại mật khẩu mặc định không?');">
+                                        <button type="submit" class="btn btn-success m-2">Đặt lại mật khẩu</button>
+                                    </form>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <% }) %>
+
+            <!-- Modal thêm nhân viên -->
+            <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addEmployeeModalLabel">Thêm nhân viên</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="employees/add" method="post" id="addEmployeeForm">
+                                <h6 class="text-primary mb-3">Thông tin cơ bản</h6>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="name" class="form-label">Họ và Tên</label>
+                                        <input type="text" class="form-control form-control-lg" name="name" id="name"
+                                            placeholder="Nhập họ và tên" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" class="form-control form-control-lg" name="email" id="email"
+                                            placeholder="Nhập email" required>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="phone" class="form-label">Số điện thoại</label>
+                                        <input type="text" class="form-control form-control-lg" name="phone" id="phone"
+                                            placeholder="Nhập số điện thoại" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="address" class="form-label">Địa chỉ</label>
+                                        <input type="text" class="form-control form-control-lg" name="address"
+                                            id="address" placeholder="Nhập địa chỉ" required>
+                                    </div>
+                                </div>
+                                <h6 class="text-primary mb-3">Thông tin công việc</h6>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="salary" class="form-label">Lương cơ bản</label>
+                                        <input type="text" class="form-control form-control-lg" name="salary"
+                                            id="salary" placeholder="Nhập lương cơ bản" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="role" class="form-label">Quyền nhân viên</label>
+                                        <select class="form-select form-select-lg" name="role" id="role">
+                                            <option value="" disabled selected>Chọn quyền</option>
+                                            <option value="admin">Quản trị viên</option>
+                                            <option value="staff">Nhân viên</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                    <button type="submit" class="btn btn-primary">Thêm nhân viên</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal sửa nhân viên -->
+            <% employees.forEach((employee)=> { %>
+                <div class="modal fade" id="editEmployeeModal<%= employee._id %>" tabindex="-1"
+                    aria-labelledby="editEmployeeModal<%= employee._id %>" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content w-100">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editEmployeeModal<%= employee._id %>">Thông tin chi tiết
+                                    nhân
+                                    viên</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="/employees/edit/<%= employee.id %>" method="post" id="editEmployeeForm">
+                                    <!-- Thông tin cơ bản -->
+                                    <h6 class="text-primary mb-3">Thông tin cơ bản</h6>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="name" class="form-label">Họ và Tên</label>
+                                            <input type="text" class="form-control form-control-lg" name="name"
+                                                id="name" placeholder="Nhập họ và tên" value="<%= employee.name %>"
+                                                required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="email" class="form-label">Email</label>
+                                            <input type="email" class="form-control form-control-lg" name="email"
+                                                id="email" placeholder="Nhập email" value="<%= employee.email %>"
+                                                required>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="phone" class="form-label">Số điện thoại</label>
+                                            <input type="text" class="form-control form-control-lg" name="phone"
+                                                id="phone" placeholder="Nhập số điện thoại"
+                                                value="<%= employee.phone %>" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="address" class="form-label">Địa chỉ</label>
+                                            <input type="text" class="form-control form-control-lg" name="address"
+                                                id="address" placeholder="Nhập địa chỉ" value="<%= employee.address %>"
+                                                required>
+                                        </div>
+                                    </div>
+
+                                    <!-- Thông tin công việc -->
+                                    <h6 class="text-primary mb-3">Thông tin công việc</h6>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="salary" class="form-label">Lương cơ bản</label>
+                                            <input type="text" class="form-control form-control-lg" name="salary"
+                                                id="salary" placeholder="Nhập lương cơ bản"
+                                                value="<%= employee.salary %>" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="role" class="form-label">Quyền nhân viên</label>
+                                            <select class="form-select form-select-lg" name="role" id="role" required>
+                                                <option value="" disabled>Chọn quyền</option>
+                                                <option value="admin" <%=employee.role==='admin' ? 'selected' : '' %>
+                                                    >Quản trị viên</option>
+                                                <option value="staff" <%=employee.role==='staff' ? 'selected' : '' %>
+                                                    >Nhân viên</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+
+                                    <!-- Nút hành động -->
+                                    <div class="text-end">
+                                        <a href="/employees" class="btn btn-secondary">Hủy</a>
+                                        <button type="submit" class="btn btn-primary">Cập nhật thông tin</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+
+                    <script>
+                        async function searchEmployee(query = '') {
+                            const resultContainer = document.getElementById('employee-list');
+                            try {
+                                const response = await fetch(`/employees/search${query.trim() ? `?q=${query}` : ''}`);
+                                const employees = await response.json();
+
+                                resultContainer.innerHTML = employees.length ?
+                                    employees.map((employee, index) => `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${employee.username}</td>
+                        <td>${employee.name}</td>
+                        <td>${employee.email}</td>
+                        <td>${employee.phone}</td>
+                        <td class="d-flex justify-content-between gap-1">
+                            <button class="btn btn-info btn-sm w-100"  data-bs-toggle="modal" data-bs-target="#viewEmployeeModal${employee._id}">
+                            Xem 
+                            </button>
+                            <button class="btn btn-warning btn-sm w-100" data-bs-toggle="modal" data-bs-target="#editEmployeeModal${employee._id}">
+                            Sửa 
+                            </button>
+                            <a type="button" href="/employees/delete/${employee._id}" class="btn btn-danger btn-sm w-100" onclick="return confirm('Bạn có chắc chắn muốn xóa nhân viên này?');">Xóa</a>
+                        </td>
+                    </tr>`).join('') :
+                                    '<tr><td colspan="5" class="text-center">Không có nhân viên nào.</td></tr>';
+                            } catch (error) {
+                                console.error('Lỗi khi tìm kiếm nhân viên:', error);
+                                resultContainer.innerHTML = '<tr><td colspan="5" class="text-danger text-center">Lỗi tải dữ liệu.</td></tr>';
+                            }
+                        }
+
+                        document.addEventListener('DOMContentLoaded', () => {
+                            searchEmployee('');
+                        });
+                    </script>
+                    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
